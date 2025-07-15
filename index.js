@@ -1,19 +1,24 @@
 const express = require('express');
-const app = express();
+const { PrismaClient } = require('@prisma/client');
 
+const app = express();
+const prisma = new PrismaClient();
 app.use(express.json());
 
 const users = []; // In-memory user store
 
 // Register user
-app.post('/users/register', (req, res) => {
+app.post('/users/register', async (req, res) => {
   const { username, password } = req.body;
 
   if (!username || !password) {
     return res.status(400).send('Username and password are required');
   }
 
-  if (users.find(u => u.username === username)) {
+  try{
+    const user = await prisma.user.create({data: {username, password}});
+    res.send(`User ${user.username} registered.`);
+  }catch (e){
     return res.status(400).send('Username already taken');
   }
 
@@ -22,7 +27,8 @@ app.post('/users/register', (req, res) => {
 });
 
 // Get all users
-app.get('/users', (req, res) => {
+app.get('/users', async (req, res) => {
+  const users = await prisma.user.findMany();
   res.json(users);
 });
 
