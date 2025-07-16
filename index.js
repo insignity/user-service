@@ -1,13 +1,14 @@
 const express = require('express');
 const {PrismaClient} = require('@prisma/client');
-
 const app = express();
 const prisma = new PrismaClient();
-app.use(express.json());
-const saltRounds = 10;
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = process.env.JWT_SECRET || 'my_super_secret_key'; // Use env variable in production
+const bcrypt = require('bcrypt');
 
+const JWT_SECRET = process.env.JWT_SECRET; // Use env variable in production
+const saltRounds = 10;
+
+app.use(express.json());
 
 // Register user
 app.post('/users/register', async (req, res) => {
@@ -27,6 +28,7 @@ app.post('/users/register', async (req, res) => {
     }
 });
 
+//Login
 app.post('/users/login', async (req, res) => {
     const {username, password} = req.body;
 
